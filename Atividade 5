@@ -1,0 +1,72 @@
+import java.io.File;
+import java.util.Scanner;
+import java.util.List;
+import java.util.ArrayList;
+
+class Time {
+    String nome;
+    int pontos;
+    int saldo;
+
+    Time(String nome) {
+        this.nome = nome;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        Scanner scanner = new Scanner(new File("jogos.txt"));
+        List<Time> lista = new ArrayList<>();
+
+        while (scanner.hasNextLine()) {
+            String[] partes = scanner.nextLine().split(",");
+            String nomeA = partes[1];
+            String nomeB = partes[2];
+            String[] gols = partes[3].split("x");
+            int golsA = Integer.parseInt(gols[0]);
+            int golsB = Integer.parseInt(gols[1]);
+
+            Time timeA = acharOuCriar(lista, nomeA);
+            Time timeB = acharOuCriar(lista, nomeB);
+
+            if (golsA > golsB) {
+                timeA.pontos += 3;
+            } else if (golsB > golsA) {
+                timeB.pontos += 3;
+            } else {
+                timeA.pontos += 1;
+                timeB.pontos += 1;
+            }
+
+            timeA.saldo += (golsA - golsB);
+            timeB.saldo += (golsB - golsA);
+        }
+
+        lista.sort((t1, t2) -> {
+            if (t1.pontos != t2.pontos) {
+                return Integer.compare(t2.pontos, t1.pontos);
+            }
+            return Integer.compare(t2.saldo, t1.saldo);
+        });
+
+        System.out.println("+----+-----------+--------+-------+");
+        System.out.println("| #  | Time      | Pontos | Saldo |");
+        System.out.println("+----+-----------+--------+-------+");
+        for (int i = 0; i < lista.size(); i++) {
+            Time t = lista.get(i);
+            System.out.printf("| %dº | %-9s | %-6d | %-5d |\n", (i + 1), t.nome, t.pontos, t.saldo);
+        }
+        System.out.println("+----+-----------+--------+-------+");
+    }
+
+    private static Time acharOuCriar(List<Time> lista, String nome) {
+        for (Time t : lista) {
+            if (t.nome.equals(nome)) {
+                return t;
+            }
+        }
+        Time novo = new Time(nome);
+        lista.add(novo);
+        return novo;
+    }
+}
